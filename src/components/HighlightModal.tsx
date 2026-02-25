@@ -77,13 +77,13 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-5 mt-5">
-                <div className="text-2xl font-extrabold tracking-wide">
+              <div className="flex flex-col gap-5 mt-10">
+                <div className="text-2xl font-bold tracking-wide">
                     {item.title.toUpperCase()}
                 </div>
 
-                <div className="flex justify-center items-end gap-3">
-                    <div className="text-8xl text-center font-extrabold tracking-tight">
+                <div className="flex items-end gap-3">
+                    <div className="text-8xl font-bold tracking-tight">
                     {item.value}
                     </div>
                     {item.unit ? (
