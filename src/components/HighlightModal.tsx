@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import type { Highlight } from "../data/highlights";
 import VideoPlayer from "./VideoPlayer";
+import { Link } from "react-router-dom";
 
 type Props = {
   item: Highlight;
@@ -95,6 +96,13 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
 
                 <div className="text-sm leading-relaxed text-slate-600">
                     {item.description}
+                </div>
+
+                <div className="text-right underline italic">
+                  <Link
+                    to={`/highlight/${item.id}`}
+                    className="underline italic"
+                  >Lihat selengkapnya</Link>
                 </div>
               </div>
             </div>

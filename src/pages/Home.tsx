@@ -3,9 +3,9 @@ import { highlights, type Highlight } from "../data/highlights";
 import HighlightCard from "../components/HighlightCard";
 import HighlightModal from "../components/HighlightModal";
 
-const TOP_LEFT = "pertumbuhan-ekonomi";
+const TOP_LEFT = "makan-bergizi-gratis";
 const TOP_CENTER = "lapangan-pekerjaan-baru";
-const TOP_RIGHT = "peningkatan-ekspor";
+const TOP_RIGHT = "pertumbuhan-ekonomi";
 
 export default function Home() {
   const [selected, setSelected] = useState<Highlight | null>(null);
