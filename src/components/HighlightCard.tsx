@@ -38,7 +38,6 @@ export default function HighlightCard({ item, onOpen }: Props) {
             ) : null}
         </div>
         <div className="h-5 w-px bg-slate-200" />
-        <div className="text-xs text-slate-500">{item.subtitle ?? ""}</div>
 
         {badgeText ? (
           <div

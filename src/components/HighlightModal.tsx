@@ -100,7 +100,7 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
 
                 <div className="text-right underline italic">
                   <Link
-                    to={`/highlight/${item.id}`}
+                    to={`https://mbg.nikici.com/${item.id}`}
                     className="underline italic"
                   >Lihat selengkapnya</Link>
                 </div>
