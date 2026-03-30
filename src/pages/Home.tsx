@@ -13,7 +13,8 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import { highlights, type Highlight } from "../data/highlights";
+import { highlights } from "../data/highlights";
+import type { Highlight } from "../types/highlight";
 import HighlightModal from "../components/HighlightModal";
 import SortableHighlightCard from "../components/SortableHighlightCard";
 

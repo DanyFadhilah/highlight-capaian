@@ -4,7 +4,7 @@ export type Highlight = {
   value: string | number;
   unit?: string;
   description: string;
-  videoUrl: string;
+  videoUrl?: string;
   icon?: string;
   source?: string;
 };

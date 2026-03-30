@@ -126,7 +126,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
         setFaqLoading(true);
         setFaqError("");
 
-        const faqs = await generateFaqsFromArticle(article);
+        const faqs = await generateFaqsFromArticle(article!);
 
         if (!cancelled) {
           setFaqSuggestions(
@@ -177,7 +177,8 @@ export default function ArticleChatPanel({ item, open }: Props) {
   async function handleSend(questionOverride?: string) {
     const question = (questionOverride ?? input).trim();
 
-    if (!question || !article || sending) return;
+    if (!question || sending) return;
+    if (!article) return;
 
     const userMessage: ChatMessage = {
       role: "user",
@@ -192,7 +193,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
     setChatError("");
 
     try {
-      const answer = await answerQuestionFromArticle(article, question, nextHistory);
+      const answer = await answerQuestionFromArticle(article!, question, nextHistory);
 
       setMessages((prev) => [
         ...prev,
