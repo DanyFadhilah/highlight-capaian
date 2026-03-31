@@ -63,10 +63,15 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
   useEffect(() => {
     if (!open) return;
+    clearChatSession(articleId);
+  }, [open, articleId]);
+  
+  useEffect(() => {
+    if (!open) return;
 
     const stored = readChatSession(articleId);
 
-    if (stored && stored.article && stored.article.content) {
+    if (stored) {
       setArticle(stored.article);
       setMessages(stored.messages || []);
       setFaqSuggestions(stored.faqSuggestions || []);
@@ -92,19 +97,17 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    if (article && article.content) return;
+    if (article) return;
 
     let cancelled = false;
 
     async function loadArticle() {
       try {
-        // setArticleLoading(true);
+        setArticleLoading(true);
         const result = await fetchArticleForHighlight(item);
         if (!cancelled) setArticle(result);
       } catch (error) {
         console.error(error);
-        clearChatSession(articleId);
-        setArticle(null);
       } finally {
         if (!cancelled) setArticleLoading(false);
       }
