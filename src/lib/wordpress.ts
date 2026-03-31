@@ -3,7 +3,7 @@ import type { ArticleData } from "../types/chat";
 import type { Highlight } from "../types/highlight";
 
 const WP_API_BASE =
-  import.meta.env.VITE_WP_API_BASE || "https://mbg.nikici.com/wp-json/wp/v2/posts";
+  import.meta.env.WP_API_BASE || "https://mbg.nikici.com/wp-json/wp/v2/posts";
 
 type WpPost = {
   slug?: string;
@@ -51,7 +51,7 @@ export async function fetchArticleForHighlight(item: Highlight): Promise<Article
       const mapped = mapWpPost(exact, item.title, item.description);
 
       if (!mapped.link) {
-        const wpBase = import.meta.env.VITE_WP_BASE_URL || "https://mbg.nikici.com";
+        const wpBase = import.meta.env.WP_BASE_URL || "https://mbg.nikici.com";
         mapped.link = `${wpBase}/${item.id}`;
       }
 
@@ -59,7 +59,7 @@ export async function fetchArticleForHighlight(item: Highlight): Promise<Article
     }
   }
 
-  const wpBase = import.meta.env.VITE_WP_BASE_URL || "https://mbg.nikici.com";
+  const wpBase = import.meta.env.WP_BASE_URL || "https://mbg.nikici.com";
 
   return {
     title: item.title,

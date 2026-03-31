@@ -57,17 +57,17 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
                 md:grid-cols-[1.1fr_0.9fr]
                 items-start
                 p-2
+                min-h-screen
+                max-h-screen
               "
             >
-              <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-black/10">
+              <div className="rounded-2xl shadow-xl flex flex-col gap-5">
                 {open ? (
                   <VideoPlayer src={item.videoUrl} />
                 ) : (
                   <div className="aspect-video w-full bg-black" />
                 )}
-              </div>
 
-              <div className="flex min-h-0 flex-col gap-4">
                 <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -113,11 +113,9 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
                     </div>
                   </div>
                 </div>
-
-                <div className="min-h-[420px]">
-                  <ArticleChatPanel item={item} open={open} />
-                </div>
               </div>
+
+              <ArticleChatPanel item={item} open={open} />
             </div>
           </div>
         </Dialog.Content>
