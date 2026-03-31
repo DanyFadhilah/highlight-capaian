@@ -66,7 +66,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
     const stored = readChatSession(articleId);
 
-    if (stored) {
+    if (stored && stored.article && stored.article.content) {
       setArticle(stored.article);
       setMessages(stored.messages || []);
       setFaqSuggestions(stored.faqSuggestions || []);
@@ -92,7 +92,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    if (article) return;
+    if (article && article.content) return;
 
     let cancelled = false;
 
@@ -103,6 +103,8 @@ export default function ArticleChatPanel({ item, open }: Props) {
         if (!cancelled) setArticle(result);
       } catch (error) {
         console.error(error);
+        clearChatSession(articleId);
+        setArticle(null);
       } finally {
         if (!cancelled) setArticleLoading(false);
       }
