@@ -98,7 +98,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
     async function loadArticle() {
       try {
-        setArticleLoading(true);
+        // setArticleLoading(true);
         const result = await fetchArticleForHighlight(item);
         if (!cancelled) setArticle(result);
       } catch (error) {
