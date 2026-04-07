@@ -24,7 +24,7 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
             w-[min(1380px,94vw)]
             max-h-screen
             min-h-screen
-            
+            overflow-y-auto
             rounded-3xl
             focus:outline-none
           "
@@ -69,7 +69,7 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
                   <div className="aspect-video w-full bg-black" />
                 )}
 
-                <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 object-fill min-h-[47.3vh] max-h-[47.3vh]">
+                <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 min-h-[47.3vh] max-h-[47.3vh]">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="h-5 w-5">
