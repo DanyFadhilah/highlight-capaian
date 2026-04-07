@@ -22,8 +22,9 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
             fixed left-1/2 top-1/2 z-50
             -translate-x-1/2 -translate-y-1/2
             w-[min(1380px,94vw)]
-            max-h-[92vh]
-            overflow-y-auto
+            max-h-screen
+            min-h-screen
+            
             rounded-3xl
             focus:outline-none
           "
@@ -61,14 +62,14 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
                 max-h-screen
               "
             >
-              <div className="rounded-2xl shadow-xl flex flex-col gap-5">
+              <div className="min-h-[98vh] max-h-[98vh] rounded-2xl shadow-xl flex flex-col gap-5">
                 {open ? (
                   <VideoPlayer src={item.videoUrl} />
                 ) : (
                   <div className="aspect-video w-full bg-black" />
                 )}
 
-                <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
+                <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 object-fill min-h-[47.3vh] max-h-[47.3vh]">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="h-5 w-5">

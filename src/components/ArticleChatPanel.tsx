@@ -226,7 +226,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
   return (
     <div
       className="
-        flex min-h-screen max-h-screen flex-col
+        flex min-h-[97.5vh] max-h-[97.5vh] flex-col
         overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-slate-200
       "
     >

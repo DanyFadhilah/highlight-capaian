@@ -13,7 +13,7 @@ export default function VideoPlayer({ src }: Props) {
 
   return (
     <video
-      className="aspect-video w-full rounded-2xl bg-black object-cover"
+      className="aspect-video w-full rounded-2xl bg-black object-fill min-h-[47.3vh] max-h-[47.3vh]"
       src={src}
       autoPlay
       loop

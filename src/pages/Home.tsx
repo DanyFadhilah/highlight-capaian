@@ -93,7 +93,7 @@ export default function Home() {
           <div className="flex items-center gap-3 justify-center">
               <img src="/icon/garuda.svg" alt="Garuda" className="h-10 w-10" />
               <p className="text-2xl font-bold">
-                Dashboard AI Presiden
+                Dashboard AI Presiden Prabowo Subianto
               </p>
           </div>
           <header className="flex items-start justify-between">
@@ -115,7 +115,7 @@ export default function Home() {
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            <main className="mt-6">
+            <main className="mt-6 min-h-screen">
               <SortableContext items={items} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-3 gap-4">
                   {topItems.map((id) => {
