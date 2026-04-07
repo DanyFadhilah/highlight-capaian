@@ -4,7 +4,7 @@ import type { Highlight } from "../types/highlight";
 import type { ArticleData, ChatMessage } from "../types/chat";
 import { clearChatSession, readChatSession, writeChatSession } from "../lib/chatSession";
 import { fetchArticleForHighlight } from "../lib/wordpress";
-import { answerQuestionFromArticle, generateFaqsFromArticle } from "../lib/gemini";
+import { answerQuestionFromArticle, generateStaticFaqFromArticle } from "../lib/gemini";
 
 type Props = {
   item: Highlight;
@@ -122,50 +122,38 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
   useEffect(() => {
     if (!open || !article) return;
-    if (faqSuggestions.length > 0) return;
+    if (messages.length > 0) return;
 
     let cancelled = false;
 
-    async function loadFaqs() {
-      try {
-        setFaqLoading(true);
-        setFaqError("");
+    async function loadStaticFaq() {
+      const faqs = await generateStaticFaqFromArticle(article);
 
-        const faqs = await generateFaqsFromArticle(article!);
+      const newMessages: ChatMessage[] = [];
 
-        if (!cancelled) {
-          setFaqSuggestions(
-            faqs.length > 0
-              ? faqs
-              : [
-                  `Apa inti dari ${item.title}?`,
-                  `Apa dampak positif dari ${item.title}?`,
-                  `Bagaimana penjelasan singkat artikel ini?`,
-                ]
-          );
-        }
-      } catch (error) {
-        console.error(error);
+      faqs.forEach((faq) => {
+        newMessages.push({
+          role: "user",
+          text: faq.q,
+        });
 
-        if (!cancelled) {
-          setFaqError("FAQ AI belum tersedia. Kamu tetap bisa bertanya langsung.");
-          setFaqSuggestions([
-            `Apa inti dari ${item.title}?`,
-            `Apa dampak positif dari ${item.title}?`,
-            `Bagaimana penjelasan singkat artikel ini?`,
-          ]);
-        }
-      } finally {
-        if (!cancelled) setFaqLoading(false);
+        newMessages.push({
+          role: "assistant",
+          text: faq.a,
+        });
+      });
+
+      if (!cancelled) {
+        setMessages(newMessages);
       }
     }
 
-    loadFaqs();
+    loadStaticFaq();
 
     return () => {
       cancelled = true;
     };
-  }, [open, article, faqSuggestions.length, item.title]);
+  }, [open, article]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -278,9 +266,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    FAQ awal
-                  </div>
+
 
                   {faqError ? <div className="text-xs text-amber-600">{faqError}</div> : null}
 
@@ -293,16 +279,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
                   {!faqLoading && faqSuggestions.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {faqSuggestions.map((faq) => (
-                        <button
-                          key={faq}
-                          type="button"
-                          onClick={() => handleSend(faq)}
-                          className="rounded-full bg-slate-50 px-4 py-2 text-sm text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100"
-                        >
-                          {faq}
-                        </button>
-                      ))}
+                      
                     </div>
                   )}
                 </div>

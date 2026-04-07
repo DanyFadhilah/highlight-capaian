@@ -90,13 +90,16 @@ export default function Home() {
         }}
       >
         <div className="px-10 py-8">
-          <header className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 justify-center">
               <img src="/icon/garuda.svg" alt="Garuda" className="h-10 w-10" />
               <p className="text-2xl font-bold">
-                Highlight Capaian Pemerintah Tahun 2026
+                Dashboard AI Presiden
               </p>
-            </div>
+          </div>
+          <header className="flex items-start justify-between">
+            <p className="text-2xl font-bold">
+              Highlight Capaian Pemerintah Tahun 2026
+            </p>
 
             <p className="text-sm font-medium text-blue-600">
               {new Date().toLocaleDateString("id-ID", {

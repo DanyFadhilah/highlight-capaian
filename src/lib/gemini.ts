@@ -157,3 +157,22 @@ Instruksi jawaban:
     "Bisa saja arahnya memang positif, tetapi wajar kalau dampaknya belum langsung terasa sama bagi semua orang. Biasanya program seperti ini butuh waktu, pemerataan, dan kecocokan dengan kebutuhan di lapangan supaya manfaatnya benar-benar terasa lebih luas."
   );
 }
+
+export function generateStaticFaqFromArticle(article: ArticleData) {
+  const title = article.title || "artikel ini";
+
+  return [
+    {
+      q: `Apa inti dari ${title}?`,
+      a: article.excerpt || "Artikel ini membahas poin utama yang relevan dan penting untuk dipahami.",
+    },
+    {
+      q: `Apa manfaat utama dari ${title}?`,
+      a: "Artikel ini memberikan wawasan yang dapat membantu pembaca memahami topik dengan lebih jelas dan praktis.",
+    },
+    {
+      q: `Kesimpulan singkat dari ${title}?`,
+      a: "Secara umum, artikel ini menyoroti hal penting yang berdampak positif dan layak untuk diperhatikan.",
+    },
+  ];
+}
