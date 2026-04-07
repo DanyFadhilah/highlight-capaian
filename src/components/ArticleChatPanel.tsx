@@ -127,6 +127,10 @@ export default function ArticleChatPanel({ item, open }: Props) {
     let cancelled = false;
 
     async function loadStaticFaq() {
+      if (!article) return;
+
+      setFaqLoading(true);
+
       const faqs = await generateStaticFaqFromArticle(article);
 
       const newMessages: ChatMessage[] = [];
