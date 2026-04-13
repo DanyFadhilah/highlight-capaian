@@ -33,17 +33,38 @@ export default function Home() {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const bgmStarted = useRef(false);
 
-  const ensureBgmPlaying = useCallback(() => {
+  const startBgm = useCallback(() => {
     const audio = bgmRef.current;
-    if (!audio) return;
+    if (!audio || bgmStarted.current) return;
 
-    if (!bgmStarted.current) {
-      audio.volume = 0.35;
-      audio.play().catch(() => {});
+    audio.volume = 0.35;
+    audio.play().then(() => {
       bgmStarted.current = true;
-    }
+    }).catch(() => {});
   }, []);
 
+  // Coba autoplay begitu halaman terbuka
+  useEffect(() => {
+    startBgm();
+
+    // Fallback: kalau browser blokir autoplay, putar saat interaksi pertama
+    const fallback = () => {
+      startBgm();
+      if (bgmStarted.current) {
+        window.removeEventListener("click", fallback);
+        window.removeEventListener("keydown", fallback);
+      }
+    };
+    window.addEventListener("click", fallback);
+    window.addEventListener("keydown", fallback);
+
+    return () => {
+      window.removeEventListener("click", fallback);
+      window.removeEventListener("keydown", fallback);
+    };
+  }, [startBgm]);
+
+  // Pause saat modal buka, resume saat modal tutup
   useEffect(() => {
     const audio = bgmRef.current;
     if (!audio) return;
@@ -112,10 +133,7 @@ export default function Home() {
   }
 
   return (
-    <div
-      className="flex h-dvh w-screen max-w-[100vw] items-center justify-center overflow-hidden bg-slate-50"
-      onClick={ensureBgmPlaying}
-    >
+    <div className="flex h-dvh w-screen max-w-[100vw] items-center justify-center overflow-hidden bg-slate-50">
       <audio ref={bgmRef} src="/audio/backsound.mp3" loop preload="auto" />
       <div
         className="origin-center flex shrink-0 flex-col"
