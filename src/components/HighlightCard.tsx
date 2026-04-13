@@ -37,7 +37,7 @@ export default function HighlightCard({ item, onOpen }: Props) {
 
       setTimeout(() => {
         setGlitch(false);
-      }, 180);
+      }, 200);
     }, 4000);
 
     return () => clearInterval(interval);
@@ -47,14 +47,14 @@ export default function HighlightCard({ item, onOpen }: Props) {
     <button
       onClick={onOpen}
       className="
-        relative w-full max-h-[190px] text-left rounded-2xl bg-white
-        ring-1 ring-slate-200 shadow-sm
-        px-4 py-5
+        relative flex h-full min-h-0 w-full flex-col justify-start text-left
+        rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm
+        px-4 py-4
         hover:shadow-md hover:ring-slate-300
         active:scale-[0.995] transition cursor-pointer
       "
     >
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <div className="h-5 w-5">
           {item.icon && (
             <img
@@ -79,16 +79,16 @@ export default function HighlightCard({ item, onOpen }: Props) {
         )}
       </div>
 
-      <div className="flex flex-col gap-2 mt-2">
-        <div className="text-xl font-bold tracking-wide">
+      <div className="mt-2 flex shrink-0 flex-col gap-2 overflow-hidden">
+        <div className="shrink-0 text-lg font-bold leading-tight tracking-wide sm:text-xl">
           {item.title.toUpperCase()}
         </div>
 
-        <div className="flex items-baseline gap-2">
+        <div className="flex shrink-0 items-baseline gap-2">
           <div
             className={`
-              text-4xl font-bold tracking-tight tabular-nums
-              transition-all duration-200 relative
+              text-3xl font-bold tracking-tight tabular-nums transition-all duration-200
+              sm:text-4xl relative
               ${glitch ? "scale-105 blur-[0.5px] opacity-80 text-blue-600" : ""}
             `}
           >
@@ -100,15 +100,17 @@ export default function HighlightCard({ item, onOpen }: Props) {
           </div>
 
           {item.unit && (
-            <div className="text-xl font-semibold text-slate-700">
+            <div className="text-lg font-semibold text-slate-700 sm:text-xl">
               {item.unit}
             </div>
           )}
         </div>
 
-        <div className="text-sm leading-relaxed text-slate-600 line-clamp-2">
-          {item.description}
-        </div>
+        {item.description ? (
+          <div className="shrink-0 text-sm leading-relaxed text-slate-600 line-clamp-4 sm:line-clamp-3">
+            {item.description}
+          </div>
+        ) : null}
       </div>
     </button>
   );

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import {
   DndContext,
   closestCenter,
@@ -18,6 +18,9 @@ import type { Highlight } from "../types/highlight";
 import HighlightModal from "../components/HighlightModal";
 import SortableHighlightCard from "../components/SortableHighlightCard";
 
+const DESIGN_BASE_WIDTH = 1536;
+const DESIGN_BASE_HEIGHT = 820;
+
 const DEFAULT_ORDER = [
   "pertumbuhan-ekonomi",
   "lapangan-pekerjaan-baru",
@@ -27,18 +30,37 @@ const DEFAULT_ORDER = [
 export default function Home() {
   const [selected, setSelected] = useState<Highlight | null>(null);
   const [scale, setScale] = useState(1);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const bgmStarted = useRef(false);
+
+  const ensureBgmPlaying = useCallback(() => {
+    const audio = bgmRef.current;
+    if (!audio) return;
+
+    if (!bgmStarted.current) {
+      audio.volume = 0.35;
+      audio.play().catch(() => {});
+      bgmStarted.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    const audio = bgmRef.current;
+    if (!audio) return;
+
+    if (selected) {
+      audio.pause();
+    } else if (bgmStarted.current) {
+      audio.play().catch(() => {});
+    }
+  }, [selected]);
 
   useEffect(() => {
     function handleResize() {
-      const baseWidth = 1536;
-      const baseHeight = 0;
+      const scaleX = window.innerWidth / DESIGN_BASE_WIDTH;
+      const scaleY = window.innerHeight / DESIGN_BASE_HEIGHT;
 
-      const scaleX = window.innerWidth / baseWidth;
-      const scaleY = window.innerHeight / baseHeight;
-
-      const scaleValue = Math.min(scaleX, scaleY);
-
-      setScale(scaleValue);
+      setScale(Math.min(scaleX, scaleY));
     }
 
     handleResize();
@@ -63,11 +85,20 @@ export default function Home() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
-    })
+    }),
   );
 
   const topItems = items.slice(0, 3);
   const restItems = items.slice(3);
+
+  const restRows = useMemo(() => {
+    const perRow = 4;
+    const rows: string[][] = [];
+    for (let i = 0; i < restItems.length; i += perRow) {
+      rows.push(restItems.slice(i, i + perRow));
+    }
+    return rows;
+  }, [restItems]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -81,20 +112,25 @@ export default function Home() {
   }
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-slate-50 flex items-start justify-center">
+    <div
+      className="flex h-dvh w-screen max-w-[100vw] items-center justify-center overflow-hidden bg-slate-50"
+      onClick={ensureBgmPlaying}
+    >
+      <audio ref={bgmRef} src="/audio/backsound.mp3" loop preload="auto" />
       <div
-        className="origin-top"
+        className="origin-center flex shrink-0 flex-col"
         style={{
           transform: `scale(${scale})`,
-          width: "1536px",
+          width: DESIGN_BASE_WIDTH,
+          height: DESIGN_BASE_HEIGHT,
         }}
       >
-        <div className="px-10 py-8">
+        <div className="flex min-h-0 flex-1 flex-col px-10 py-8">
           <div className="flex items-center gap-3 justify-center">
-              <img src="/icon/garuda.svg" alt="Garuda" className="h-10 w-10" />
-              <p className="text-2xl font-bold">
-                Dashboard AI Presiden Prabowo Subianto
-              </p>
+            <img src="/icon/garuda.svg" alt="Garuda" className="h-10 w-10" />
+            <p className="text-2xl font-bold">
+              Dashboard AI Presiden Prabowo Subianto
+            </p>
           </div>
           <header className="flex items-start justify-between">
             <p className="text-2xl font-bold">
@@ -115,9 +151,9 @@ export default function Home() {
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            <main className="mt-6 min-h-screen">
+            <main className="mt-6 flex min-h-0 flex-1 flex-col gap-4">
               <SortableContext items={items} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid min-h-0 flex-1 grid-cols-3 gap-4">
                   {topItems.map((id) => {
                     const item = itemMap.get(id);
                     if (!item) return null;
@@ -132,21 +168,25 @@ export default function Home() {
                   })}
                 </div>
 
-                <div className="mt-4 grid grid-cols-4 gap-4">
-                  {restItems.map((id) => {
-                    const item = itemMap.get(id);
-                    if (!item) return null;
+                {restRows.map((rowIds, rowIndex) => (
+                  <div
+                    key={`rest-row-${rowIndex}`}
+                    className="grid min-h-0 flex-1 grid-cols-4 gap-4"
+                  >
+                    {rowIds.map((id) => {
+                      const item = itemMap.get(id);
+                      if (!item) return null;
 
-                    return (
-                      <SortableHighlightCard
-                        key={item.id}
-                        item={item}
-                        onOpen={() => setSelected(item)}
-                      />
-                    );
-                  })}
-                </div>
-
+                      return (
+                        <SortableHighlightCard
+                          key={item.id}
+                          item={item}
+                          onOpen={() => setSelected(item)}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
               </SortableContext>
             </main>
           </DndContext>

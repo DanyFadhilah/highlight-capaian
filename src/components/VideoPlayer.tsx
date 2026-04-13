@@ -5,21 +5,23 @@ type Props = {
 export default function VideoPlayer({ src }: Props) {
   if (!src) {
     return (
-      <div className="aspect-video w-full rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500">
+      <div className="flex w-full min-h-0 flex-[1.15] basis-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-100 text-slate-500">
         Video belum tersedia
       </div>
     );
   }
 
   return (
-    <video
-      className="aspect-video w-full rounded-2xl bg-black object-fill min-h-[47.3vh] max-h-[47.3vh]"
-      src={src}
-      autoPlay
-      loop
-      playsInline
-      controls
-      preload="auto"
-    />
+    <div className="min-h-0 w-full flex-[1.15] basis-0 overflow-hidden rounded-2xl bg-black">
+      <video
+        className="h-full min-h-0 w-full object-cover"
+        src={src}
+        autoPlay
+        loop
+        playsInline
+        controls
+        preload="auto"
+      />
+    </div>
   );
 }

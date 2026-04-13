@@ -26,8 +26,12 @@ export default function SortableHighlightCard({ item, onOpen }: Props) {
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="touch-none">
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+    <div ref={setNodeRef} style={style} className="touch-none h-full min-h-0">
+      <div
+        {...attributes}
+        {...listeners}
+        className="h-full min-h-0 cursor-grab active:cursor-grabbing"
+      >
         <HighlightCard item={item} onOpen={onOpen} />
       </div>
     </div>

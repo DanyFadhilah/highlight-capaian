@@ -21,10 +21,8 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
           className="
             fixed left-1/2 top-1/2 z-50
             -translate-x-1/2 -translate-y-1/2
-            w-[min(1380px,94vw)]
-            max-h-screen
-            min-h-screen
-            overflow-y-auto
+            w-[min(1380px,calc(100vw-1.5rem))]
+            h-dvh max-h-dvh min-h-0
             rounded-3xl
             focus:outline-none
           "
@@ -36,7 +34,7 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
             dan kolom chat AI untuk pertanyaan terkait artikel.
           </Dialog.Description>
 
-          <div className="relative">
+          <div className="relative h-full min-h-0">
             <Dialog.Close asChild>
               <button
                 aria-label="Close"
@@ -54,23 +52,21 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
 
             <div
               className="
-                grid gap-6
-                md:grid-cols-[1.1fr_0.9fr]
-                items-start
-                p-2
-                min-h-screen
-                max-h-screen
+                grid h-full min-h-0 gap-6 overflow-hidden
+                p-2 md:grid-cols-[1.1fr_0.9fr]
+                items-stretch
               "
             >
-              <div className="min-h-[98vh] max-h-[98vh] rounded-2xl shadow-xl flex flex-col gap-5">
+              <div className="flex min-h-0 max-h-full flex-col gap-5 overflow-hidden rounded-2xl shadow-xl">
                 {open ? (
                   <VideoPlayer src={item.videoUrl} />
                 ) : (
-                  <div className="aspect-video w-full bg-black" />
+                  <div className="aspect-video w-full shrink-0 rounded-2xl bg-black" />
                 )}
 
-                <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 min-h-[47.3vh] max-h-[47.3vh]">
-                  <div className="flex items-center justify-between gap-3">
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 sm:p-8">
+                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                  <div className="flex shrink-0 items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="h-5 w-5">
                         {item.icon ? (
@@ -88,19 +84,19 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
                     </div>
                   </div>
 
-                  <div className="mt-8 flex flex-col gap-5">
-                    <div className="text-2xl font-bold tracking-wide">{item.title.toUpperCase()}</div>
+                  <div className="mt-6 flex min-h-0 flex-1 flex-col gap-4 sm:mt-8 sm:gap-5">
+                    <div className="shrink-0 text-xl font-bold tracking-wide sm:text-2xl">{item.title.toUpperCase()}</div>
 
-                    <div className="flex items-end gap-3">
-                      <div className="text-7xl font-bold tracking-tight md:text-8xl">
+                    <div className="flex shrink-0 items-end gap-3">
+                      <div className="text-5xl font-bold tracking-tight sm:text-7xl md:text-8xl">
                         {item.value}
                       </div>
                       {item.unit ? (
-                        <div className="text-3xl font-semibold text-slate-700">{item.unit}</div>
+                        <div className="text-2xl font-semibold text-slate-700 sm:text-3xl">{item.unit}</div>
                       ) : null}
                     </div>
 
-                    <div className="text-sm leading-relaxed text-slate-600">{item.description}</div>
+                    <div className="min-h-0 flex-1 text-sm leading-relaxed text-slate-600">{item.description}</div>
 
                     <div className="text-right underline italic">
                       <Link
@@ -112,6 +108,7 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
                         Lihat selengkapnya
                       </Link>
                     </div>
+                  </div>
                   </div>
                 </div>
               </div>

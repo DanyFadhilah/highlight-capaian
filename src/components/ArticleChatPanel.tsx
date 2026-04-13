@@ -226,8 +226,8 @@ export default function ArticleChatPanel({ item, open }: Props) {
   return (
     <div
       className="
-        flex min-h-[97.5vh] max-h-[97.5vh] flex-col
-        overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-slate-200
+        flex h-full min-h-0 max-h-full flex-col overflow-hidden
+        rounded-2xl bg-white shadow-xl ring-1 ring-slate-200
       "
     >
       <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
