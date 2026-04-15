@@ -150,8 +150,8 @@ export default function Home() {
               Dashboard AI Presiden Prabowo Subianto
             </p>
           </div>
-          <header className="flex items-start justify-between">
-            <p className="text-2xl font-bold">
+          <header className="flex items-start justify-between mt-1">
+            <p className="text-xl font-semibold">
               Highlight Capaian Pemerintah Tahun 2026
             </p>
 
