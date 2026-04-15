@@ -4,7 +4,7 @@ import type { Highlight } from "../types/highlight";
 import type { ArticleData, ChatMessage } from "../types/chat";
 import { clearChatSession, readChatSession, writeChatSession } from "../lib/chatSession";
 import { fetchArticleForHighlight } from "../lib/wordpress";
-import { answerQuestionFromArticle, generateStaticFaqFromArticle } from "../lib/gemini";
+import { answerQuestionFromArticle, generateInitialChat } from "../lib/groq";
 
 type Props = {
   item: Highlight;
@@ -47,10 +47,8 @@ export default function ArticleChatPanel({ item, open }: Props) {
   const [articleLoading, setArticleLoading] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [faqSuggestions, setFaqSuggestions] = useState<string[]>([]);
-  const [faqLoading, setFaqLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
 
-  const [faqError, setFaqError] = useState("");
   const [chatError, setChatError] = useState("");
 
   const [input, setInput] = useState("");
@@ -74,14 +72,11 @@ export default function ArticleChatPanel({ item, open }: Props) {
     if (stored) {
       setArticle(stored.article);
       setMessages(stored.messages || []);
-      setFaqSuggestions(stored.faqSuggestions || []);
     } else {
       setArticle(null);
       setMessages([]);
-      setFaqSuggestions([]);
     }
 
-    setFaqError("");
     setChatError("");
   }, [open, articleId]);
 
@@ -91,9 +86,9 @@ export default function ArticleChatPanel({ item, open }: Props) {
     writeChatSession(articleId, {
       article,
       messages,
-      faqSuggestions,
+      faqSuggestions: [],
     });
-  }, [open, articleId, article, messages, faqSuggestions]);
+  }, [open, articleId, article, messages]);
 
   useEffect(() => {
     if (!open) return;
@@ -126,42 +121,29 @@ export default function ArticleChatPanel({ item, open }: Props) {
 
     let cancelled = false;
 
-    async function loadStaticFaq() {
+    async function loadInitialChat() {
       if (!article) return;
 
-      setFaqLoading(true);
+      setInitialLoading(true);
 
-      const faqs = await generateStaticFaqFromArticle(article);
-
-      const newMessages: ChatMessage[] = [];
-
-      faqs.forEach((faq) => {
-        newMessages.push({
-          role: "user",
-          text: faq.q,
-        });
-
-        newMessages.push({
-          role: "assistant",
-          text: faq.a,
-        });
-      });
+      const chatMessages = await generateInitialChat(article);
 
       if (!cancelled) {
-        setMessages(newMessages);
+        setMessages(chatMessages);
+        setInitialLoading(false);
       }
     }
 
-    loadStaticFaq();
+    loadInitialChat();
 
     return () => {
       cancelled = true;
     };
-  }, [open, article]);
+  }, [open, article, messages.length]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages, sending, faqSuggestions.length]);
+  }, [messages, sending]);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -218,8 +200,6 @@ export default function ArticleChatPanel({ item, open }: Props) {
   function handleReset() {
     clearChatSession(articleId);
     setMessages([]);
-    setFaqSuggestions([]);
-    setFaqError("");
     setChatError("");
   }
 
@@ -263,30 +243,17 @@ export default function ArticleChatPanel({ item, open }: Props) {
           <>
             {messages.length === 0 && (
               <div className="space-y-4">
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600 ring-1 ring-slate-200">
-                  Hai, saya siap bantu menjelaskan isi artikel{" "}
-                  <span className="font-semibold">{item.title}</span>. Kamu bisa pilih FAQ awal
-                  atau langsung tanya bebas.
-                </div>
-
-                <div className="space-y-2">
-
-
-                  {faqError ? <div className="text-xs text-amber-600">{faqError}</div> : null}
-
-                  {faqLoading && (
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Menyiapkan pertanyaan awal dari isi artikel...
-                    </div>
-                  )}
-
-                  {!faqLoading && faqSuggestions.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      
-                    </div>
-                  )}
-                </div>
+                {initialLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    AI sedang menyiapkan ringkasan artikel...
+                  </div>
+                ) : (
+                  <div className="rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600 ring-1 ring-slate-200">
+                    Hai, saya siap bantu menjelaskan isi artikel{" "}
+                    <span className="font-semibold">{item.title}</span>. Silakan tanya apa saja.
+                  </div>
+                )}
               </div>
             )}
 
