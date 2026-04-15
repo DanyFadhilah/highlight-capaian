@@ -100,7 +100,7 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
 
                     <div className="text-right underline italic">
                       <Link
-                        to={`https://mbg.nikici.com/${item.id}`}
+                        to={`https://technocracy.indonesiabrain.com/${item.id}`}
                         className="underline italic"
                         target="_blank"
                         rel="noreferrer"
