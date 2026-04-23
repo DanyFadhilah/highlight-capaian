@@ -60,9 +60,7 @@ export default function HighlightDetail() {
                     <p className="leading-10">{section?.text1}</p>
 
                     <ul
-                      className={
-                        section.listClassName ?? "flex flex-col gap-4"
-                      }
+                      className={section.listClassName ?? "flex flex-col gap-4"}
                     >
                       {section.items?.map((item, i) => (
                         <li key={i}>
@@ -101,32 +99,26 @@ export default function HighlightDetail() {
             case "references":
               return (
                 <div key={index}>
-                    <div className="flex gap-2 justify-between">
-                        {section.image?.map((src, i) => (
-                            <img key={i} src={`${src}`} alt="" />
-                        ))}
-                    </div>
+                  <div className="flex gap-2 justify-between">
+                    {section.image?.map((src, i) => (
+                      <img key={i} src={`${src}`} alt="" />
+                    ))}
+                  </div>
 
-                    <p className="font-semibold mt-10">
-                        Referensi:{" "}
-                        <span className="text-sm font-normal">
-                        {section.title}
-                        </span>
-                    </p>
+                  <p className="font-semibold mt-10">
+                    Referensi:{" "}
+                    <span className="text-sm font-normal">{section.title}</span>
+                  </p>
 
-                    <ul className="list-decimal pl-5 mt-2 leading-10">
-                        {section.source.map((src, i) => (
-                        <li key={i}>
-                            <a
-                            href={src}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            >
-                            {src}
-                            </a>
-                        </li>
-                        ))}
-                    </ul>
+                  <ul className="list-decimal pl-5 mt-2 leading-10">
+                    {section.source.map((src, i) => (
+                      <li key={i}>
+                        <a href={src} target="_blank" rel="noopener noreferrer">
+                          {src}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               );
 
