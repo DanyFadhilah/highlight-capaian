@@ -18,7 +18,7 @@ type Props = {
 // "B" = Layout 2x2 (Video + Info | Chart + Chat)  — Gambar 1
 // "C" = Layout chart di kiri (Video + Chart + Info | Chat full) — Gambar 2
 // ============================================================
-const LAYOUT: "A" | "B" | "C" = "B";
+const LAYOUT: "A" | "B" | "C" = "A";
 
 function ArticleInfoCard({ item }: { item: Highlight }) {
   return (
@@ -148,12 +148,14 @@ function LayoutA({ item, open }: { item: Highlight; open: boolean }) {
   return (
     <div
       className="
-        grid h-full min-h-0 gap-6 overflow-hidden
-        p-2 md:grid-cols-[1.1fr_0.9fr]
+        grid h-full min-h-0 gap-4 overflow-y-auto
+        p-1 sm:p-2
+        md:gap-6 md:overflow-hidden
+        md:grid-cols-[1.1fr_0.9fr]
         items-stretch
       "
     >
-      <div className="flex min-h-0 max-h-full flex-col gap-5 overflow-hidden rounded-2xl shadow-xl">
+      <div className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl shadow-xl md:max-h-full md:gap-5">
         {open ? (
           <VideoPlayer src={item.videoUrl} />
         ) : (
@@ -162,7 +164,9 @@ function LayoutA({ item, open }: { item: Highlight; open: boolean }) {
         <ArticleInfoCard item={item} />
       </div>
 
-      <ArticleChatPanel item={item} open={open} />
+      <div className="min-h-[65dvh] md:min-h-0">
+        <ArticleChatPanel item={item} open={open} />
+      </div>
     </div>
   );
 }
@@ -305,11 +309,13 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
 
         <Dialog.Content
           className="
-            fixed left-1/2 top-1/2 z-50
-            -translate-x-1/2 -translate-y-1/2
-            w-[min(1380px,calc(100vw-1.5rem))]
-            h-dvh max-h-dvh min-h-0
-            rounded-3xl
+            fixed inset-0 z-50
+            h-dvh min-h-0 w-full
+            p-2 sm:p-3
+            md:left-1/2 md:top-1/2 md:inset-auto
+            md:-translate-x-1/2 md:-translate-y-1/2
+            md:h-dvh md:max-h-dvh md:w-[min(1380px,calc(100vw-1.5rem))]
+            md:rounded-3xl
             focus:outline-none
           "
         >
@@ -327,10 +333,11 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
               <button
                 aria-label="Close"
                 className="
-                  absolute right-3 top-3 z-20
-                  grid h-10 w-10 place-items-center
+                  absolute right-4 top-4 z-20
+                  grid h-9 w-9 place-items-center
                   rounded-full bg-white text-slate-900 shadow-lg
                   ring-1 ring-slate-200
+                  md:right-3 md:top-3 md:h-10 md:w-10
                   hover:bg-slate-50 active:scale-[0.98] cursor-pointer
                 "
               >
