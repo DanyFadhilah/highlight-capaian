@@ -183,7 +183,7 @@ export default function Home() {
             </header>
 
             <DndContext
-              sensors={sensors}
+              sensors={isMobile ? undefined : sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
