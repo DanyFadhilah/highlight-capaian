@@ -32,7 +32,6 @@ export default function Home() {
   const [scale, setScale] = useState(1);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const bgmStarted = useRef(false);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
