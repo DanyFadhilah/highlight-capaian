@@ -109,7 +109,9 @@ export default function Home() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: isMobile
+        ? { delay: 200, tolerance: 5 }
+        : { distance: 8 },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
@@ -147,6 +149,8 @@ export default function Home() {
     month: "long",
     year: "numeric",
   });
+
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
   return (
     <>
