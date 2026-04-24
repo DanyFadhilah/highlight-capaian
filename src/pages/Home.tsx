@@ -3,7 +3,6 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
-  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -35,24 +34,25 @@ export default function Home() {
   const bgmStarted = useRef(false);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+  );
+
   const startBgm = useCallback(() => {
     const audio = bgmRef.current;
     if (!audio || bgmStarted.current) return;
 
     audio.volume = 0.35;
-    audio
-      .play()
-      .then(() => {
-        bgmStarted.current = true;
-      })
-      .catch(() => {});
+    audio.play().then(() => {
+      bgmStarted.current = true;
+    }).catch(() => {});
   }, []);
 
-  // Coba autoplay begitu halaman terbuka
   useEffect(() => {
     startBgm();
 
-    // Fallback: kalau browser blokir autoplay, putar saat interaksi pertama
     const fallback = () => {
       startBgm();
       if (bgmStarted.current) {
@@ -60,6 +60,7 @@ export default function Home() {
         window.removeEventListener("keydown", fallback);
       }
     };
+
     window.addEventListener("click", fallback);
     window.addEventListener("keydown", fallback);
 
@@ -69,7 +70,6 @@ export default function Home() {
     };
   }, [startBgm]);
 
-  // Pause saat modal buka, resume saat modal tutup
   useEffect(() => {
     const audio = bgmRef.current;
     if (!audio) return;
@@ -85,7 +85,6 @@ export default function Home() {
     function handleResize() {
       const scaleX = window.innerWidth / DESIGN_BASE_WIDTH;
       const scaleY = window.innerHeight / DESIGN_BASE_HEIGHT;
-
       setScale(Math.min(scaleX, scaleY));
     }
 
@@ -107,20 +106,6 @@ export default function Home() {
   const itemMap = useMemo(() => {
     return new Map(highlights.map((h) => [h.id, h]));
   }, []);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: isMobile
-        ? { delay: 200, tolerance: 5 }
-        : { distance: 8 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 5,
-      },
-    }),
-  );
 
   const topItems = items.slice(0, 3);
   const restItems = items.slice(3);
@@ -155,7 +140,6 @@ export default function Home() {
     <>
       <audio ref={bgmRef} src="/audio/backsound.mp3" loop preload="auto" />
 
-      {/* ===== DESKTOP (lg+) — LAYOUT FIXED ORIGINAL ===== */}
       <div className="hidden lg:flex h-dvh w-screen max-w-[100vw] items-center justify-center overflow-hidden bg-slate-50">
         <div
           className="origin-center flex shrink-0 flex-col"
@@ -172,18 +156,18 @@ export default function Home() {
                 Dashboard AI Presiden Prabowo Subianto
               </p>
             </div>
+
             <header className="flex items-start justify-between mt-1">
               <p className="text-xl font-semibold">
                 Highlight Capaian Pemerintah Tahun 2026
               </p>
-
               <p className="text-sm font-medium text-blue-600">
                 {tanggalHariIni}
               </p>
             </header>
 
             <DndContext
-              sensors={isMobile ? undefined : sensors}
+              sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
@@ -230,7 +214,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ===== MOBILE / TABLET KECIL (< lg) — LAYOUT STACKED SCROLLABLE ===== */}
       <div className="lg:hidden min-h-dvh w-full bg-slate-50">
         <div className="mx-auto flex w-full max-w-[720px] flex-col px-4 py-5 sm:px-6 sm:py-6">
           <div className="flex items-center justify-center gap-2 text-center">
@@ -253,11 +236,7 @@ export default function Home() {
             </p>
           </header>
 
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
+          <DndContext>
             <main className="mt-4 pb-6">
               <SortableContext items={items} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
