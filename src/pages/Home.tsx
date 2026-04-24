@@ -2,8 +2,7 @@ import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import {
   DndContext,
   closestCenter,
-  MouseSensor,
-  TouchSensor,
+  PointerSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -39,9 +38,12 @@ export default function Home() {
     if (!audio || bgmStarted.current) return;
 
     audio.volume = 0.35;
-    audio.play().then(() => {
-      bgmStarted.current = true;
-    }).catch(() => {});
+    audio
+      .play()
+      .then(() => {
+        bgmStarted.current = true;
+      })
+      .catch(() => {});
   }, []);
 
   // Coba autoplay begitu halaman terbuka
@@ -105,11 +107,8 @@ export default function Home() {
   }, []);
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {
+    useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 250, tolerance: 8 },
     }),
   );
 
