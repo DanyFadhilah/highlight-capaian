@@ -248,7 +248,6 @@ export default function Home() {
                         key={item.id}
                         item={item}
                         onOpen={() => setSelected(item)}
-                        disabled={true}
                       />
                     );
                   })}
