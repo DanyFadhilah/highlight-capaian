@@ -6,9 +6,10 @@ import HighlightCard from "./HighlightCard";
 type Props = {
   item: Highlight;
   onOpen: () => void;
+  disabled?: boolean;
 };
 
-export default function SortableHighlightCard({ item, onOpen }: Props) {
+export default function SortableHighlightCard({ item, onOpen, disabled }: Props) {
   const {
     attributes,
     listeners,
@@ -16,7 +17,10 @@ export default function SortableHighlightCard({ item, onOpen }: Props) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({
+    id: item.id,
+    disabled,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -27,16 +31,11 @@ export default function SortableHighlightCard({ item, onOpen }: Props) {
 
   return (
     <div ref={setNodeRef} style={style} className="h-full min-h-0">
-      <div className="relative h-full min-h-0">
-        
-        <div
-          {...attributes}
-          {...listeners}
-          className="absolute top-2 right-2 z-10 cursor-grab active:cursor-grabbing p-2"
-        >
-          ☰
-        </div>
-
+      <div
+        {...attributes}
+        {...(!disabled ? listeners : {})}
+        className="h-full min-h-0"
+      >
         <HighlightCard item={item} onOpen={onOpen} />
       </div>
     </div>
