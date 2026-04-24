@@ -178,13 +178,15 @@ function LayoutB({ item, open }: { item: Highlight; open: boolean }) {
   return (
     <div
       className="
-        grid h-full min-h-0 gap-4 overflow-hidden
-        p-2 md:grid-cols-2 md:grid-rows-[auto_1fr]
+        grid h-full min-h-0 gap-4 overflow-y-auto
+        p-1 sm:p-2
+        md:gap-6 md:overflow-hidden
+        md:grid-cols-[1.1fr_0.9fr]
         items-stretch
       "
     >
       {/* Kiri atas: Video */}
-      <div className="min-h-0 overflow-hidden rounded-2xl shadow-xl">
+      <div className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl shadow-xl md:max-h-full md:gap-5">
         {open ? (
           <VideoPlayer src={item.videoUrl} />
         ) : (
@@ -292,7 +294,9 @@ function LayoutC({ item, open }: { item: Highlight; open: boolean }) {
       </div>
 
       {/* Kanan: Chat full height */}
-      <ArticleChatPanel item={item} open={open} />
+      <div className="min-h-[65dvh] md:min-h-0">
+        <ArticleChatPanel item={item} open={open} />
+      </div>
     </div>
   );
 }
