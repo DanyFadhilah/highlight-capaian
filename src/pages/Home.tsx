@@ -33,6 +33,7 @@ export default function Home() {
   const [scale, setScale] = useState(1);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const bgmStarted = useRef(false);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
   const startBgm = useCallback(() => {
     const audio = bgmRef.current;
@@ -149,8 +150,6 @@ export default function Home() {
     month: "long",
     year: "numeric",
   });
-
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
   return (
     <>
