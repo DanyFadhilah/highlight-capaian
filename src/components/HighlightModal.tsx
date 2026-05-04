@@ -145,29 +145,49 @@ function ArticleInfoCompact({ item }: { item: Highlight }) {
 // LAYOUT A — Layout asli: Video + Info kiri, Chat kanan
 // ============================================================
 function LayoutA({ item, open }: { item: Highlight; open: boolean }) {
+  const videoEl = open ? (
+    <VideoPlayer src={item.videoUrl} />
+  ) : (
+    <div className="aspect-video w-full shrink-0 rounded-2xl bg-black" />
+  );
+
   return (
-    <div
-      className="
-        grid h-full min-h-0 gap-4 overflow-y-auto
-        p-1 sm:p-2
-        md:gap-6 md:overflow-hidden
-        md:grid-cols-[1.1fr_0.9fr]
-        items-stretch
-      "
-    >
-      <div className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl shadow-xl md:max-h-full md:gap-5">
-        {open ? (
-          <VideoPlayer src={item.videoUrl} />
-        ) : (
-          <div className="aspect-video w-full shrink-0 rounded-2xl bg-black" />
-        )}
-        <ArticleInfoCard item={item} />
+    <>
+      {/* Mobile: kolom penuh tinggi, chat mengisi sisa viewport — area pesan scroll di dalam panel */}
+      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden p-1 sm:gap-3 sm:p-2 md:hidden">
+        <div className="aspect-video w-full shrink-0 overflow-hidden rounded-2xl shadow-xl">
+          {videoEl}
+        </div>
+        <div className="min-h-0 max-h-[min(34vh,260px)] shrink-0 overflow-y-auto rounded-2xl shadow-xl">
+          <ArticleInfoCompact item={item} />
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <ArticleChatPanel item={item} open={open} />
+        </div>
       </div>
 
-      <div className="min-h-[65dvh] md:min-h-0">
-        <ArticleChatPanel item={item} open={open} />
+      {/* Desktop */}
+      <div
+        className="
+          hidden h-full min-h-0 gap-4 overflow-hidden
+          p-1 sm:p-2
+          md:grid md:grid-cols-[1.1fr_0.9fr] md:items-stretch md:gap-6
+        "
+      >
+        <div className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl shadow-xl md:max-h-full md:gap-5">
+          {open ? (
+            <VideoPlayer src={item.videoUrl} />
+          ) : (
+            <div className="aspect-video w-full shrink-0 rounded-2xl bg-black" />
+          )}
+          <ArticleInfoCard item={item} />
+        </div>
+
+        <div className="min-h-0">
+          <ArticleChatPanel item={item} open={open} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -175,56 +195,37 @@ function LayoutA({ item, open }: { item: Highlight; open: boolean }) {
 // LAYOUT B — 2x2 Grid: Video + Info kiri, Chart + Chat kanan (Gambar 1)
 // ============================================================
 function LayoutB({ item, open }: { item: Highlight; open: boolean }) {
-  return (
-    <div
-      className="
-        grid h-full min-h-0 gap-4 overflow-y-auto
-        p-1 sm:p-2
-        md:gap-6 md:overflow-hidden
-        md:grid-cols-[1.1fr_0.9fr]
-        items-stretch
-      "
-    >
-      {/* Kiri atas: Video */}
-      <div className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl shadow-xl md:max-h-full md:gap-5">
-        {open ? (
-          <VideoPlayer src={item.videoUrl} />
-        ) : (
-          <div className="aspect-video w-full rounded-2xl bg-black" />
-        )}
-      </div>
-
-      {/* Kanan atas: Chart */}
-      <div className="min-h-0 overflow-hidden rounded-2xl bg-white p-5 shadow-xl ring-1 ring-slate-200">
-        <HighlightChart item={item} className="h-full" />
-      </div>
-
-      {/* Kiri bawah: Article info */}
-      <ArticleInfoCompact item={item} />
-
-      {/* Kanan bawah: Chat */}
-      <div className="min-h-0 overflow-hidden">
-        <ArticleChatPanel item={item} open={open} />
-      </div>
-    </div>
+  const videoEl = open ? (
+    <VideoPlayer src={item.videoUrl} />
+  ) : (
+    <div className="aspect-video w-full shrink-0 rounded-2xl bg-black" />
   );
-}
 
-// ============================================================
-// LAYOUT C — Chart terintegrasi kiri: Video + Chart + Info kiri, Chat full kanan (Gambar 2)
-// ============================================================
-function LayoutC({ item, open }: { item: Highlight; open: boolean }) {
   return (
-    <div
-      className="
-        grid h-full min-h-0 gap-4 overflow-hidden
-        p-2 md:grid-cols-[1.1fr_0.9fr]
-        items-stretch
-      "
-    >
-      {/* Kiri: Video + Chart + Info */}
-      <div className="flex min-h-0 max-h-full flex-col gap-4 overflow-hidden">
-        <div className="shrink-0 overflow-hidden rounded-2xl shadow-xl">
+    <>
+      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden p-1 sm:p-2 md:hidden">
+        <div className="aspect-video w-full shrink-0 overflow-hidden rounded-2xl shadow-xl">
+          {videoEl}
+        </div>
+        <div className="min-h-0 max-h-[40vh] shrink-0 overflow-hidden rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-200">
+          <HighlightChart item={item} className="h-full min-h-[160px]" />
+        </div>
+        <div className="min-h-0 max-h-[min(28vh,220px)] shrink-0 overflow-y-auto">
+          <ArticleInfoCompact item={item} />
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <ArticleChatPanel item={item} open={open} />
+        </div>
+      </div>
+
+      <div
+        className="
+          hidden h-full min-h-0 gap-4 overflow-hidden
+          p-1 sm:p-2
+          md:grid md:grid-cols-[1.1fr_0.9fr] md:items-stretch md:gap-6
+        "
+      >
+        <div className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl shadow-xl md:max-h-full md:gap-5">
           {open ? (
             <VideoPlayer src={item.videoUrl} />
           ) : (
@@ -232,72 +233,169 @@ function LayoutC({ item, open }: { item: Highlight; open: boolean }) {
           )}
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl bg-white p-5 shadow-xl ring-1 ring-slate-200">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-5">
-                {item.icon ? (
-                  <img
-                    src={item.icon}
-                    alt=""
-                    className="h-6 w-6 object-contain"
-                  />
-                ) : null}
-              </div>
-              <div className="h-6 w-px bg-slate-200" />
-            </div>
-            <div className="flex items-center gap-3 text-sm text-slate-500">
-              <span className="italic">Source</span>
-              {item.source ? (
-                <img
-                  src={item.source}
-                  alt=""
-                  className="w-30 max-h-15 object-contain"
-                />
-              ) : null}
-            </div>
-          </div>
+        <div className="min-h-0 overflow-hidden rounded-2xl bg-white p-5 shadow-xl ring-1 ring-slate-200">
+          <HighlightChart item={item} className="h-full" />
+        </div>
 
-          <div className="text-lg font-bold tracking-wide">
-            {item.title.toUpperCase()}
-          </div>
+        <ArticleInfoCompact item={item} />
 
-          {/* Chart terintegrasi */}
-          <HighlightChart item={item} className="h-48 shrink-0" />
+        <div className="min-h-0 overflow-hidden">
+          <ArticleChatPanel item={item} open={open} />
+        </div>
+      </div>
+    </>
+  );
+}
 
-          <div className="flex items-end gap-3">
-            <div className="text-4xl font-bold tracking-tight">
-              {item.value}
-            </div>
-            {item.unit ? (
-              <div className="text-xl font-semibold text-slate-700">
-                {item.unit}
-              </div>
+// ============================================================
+// LAYOUT C — Chart terintegrasi kiri: Video + Chart + Info kiri, Chat full kanan (Gambar 2)
+// ============================================================
+function LayoutC({ item, open }: { item: Highlight; open: boolean }) {
+  const articleWithChart = (
+    <div className="flex min-h-0 flex-col gap-3 overflow-y-auto rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-200 sm:gap-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="h-5 w-5">
+            {item.icon ? (
+              <img src={item.icon} alt="" className="h-6 w-6 object-contain" />
             ) : null}
           </div>
-
-          <div className="text-sm leading-relaxed text-slate-600">
-            {item.description}
-          </div>
-
-          <div className="text-right underline italic text-sm">
-            <Link
-              to={`https://technocracy.indonesiabrain.com/${item.id}`}
-              className="underline italic"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Lihat selengkapnya
-            </Link>
-          </div>
+          <div className="h-6 w-px bg-slate-200" />
+        </div>
+        <div className="flex min-w-0 items-center gap-2 text-sm text-slate-500 sm:gap-3">
+          <span className="shrink-0 italic">Source</span>
+          {item.source ? (
+            <img
+              src={item.source}
+              alt=""
+              className="w-30 max-h-15 object-contain"
+            />
+          ) : null}
         </div>
       </div>
 
-      {/* Kanan: Chat full height */}
-      <div className="min-h-[65dvh] md:min-h-0">
-        <ArticleChatPanel item={item} open={open} />
+      <div className="text-lg font-bold tracking-wide">{item.title.toUpperCase()}</div>
+
+      <HighlightChart item={item} className="h-40 shrink-0 sm:h-48" />
+
+      <div className="flex items-end gap-3">
+        <div className="text-3xl font-bold tracking-tight sm:text-4xl">{item.value}</div>
+        {item.unit ? (
+          <div className="text-lg font-semibold text-slate-700 sm:text-xl">{item.unit}</div>
+        ) : null}
+      </div>
+
+      <div className="text-sm leading-relaxed text-slate-600">{item.description}</div>
+
+      <div className="text-right text-sm underline italic">
+        <Link
+          to={`https://technocracy.indonesiabrain.com/${item.id}`}
+          className="underline italic"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Lihat selengkapnya
+        </Link>
       </div>
     </div>
+  );
+
+  const videoEl = open ? (
+    <VideoPlayer src={item.videoUrl} />
+  ) : (
+    <div className="aspect-video w-full shrink-0 rounded-2xl bg-black" />
+  );
+
+  return (
+    <>
+      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden p-1 sm:p-2 md:hidden">
+        <div className="aspect-video w-full shrink-0 overflow-hidden rounded-2xl shadow-xl">
+          {videoEl}
+        </div>
+        <div className="min-h-0 max-h-[min(36vh,300px)] shrink-0 overflow-y-auto">
+          {articleWithChart}
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <ArticleChatPanel item={item} open={open} />
+        </div>
+      </div>
+
+      <div
+        className="
+          hidden h-full min-h-0 gap-4 overflow-hidden
+          p-2 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-stretch
+        "
+      >
+        <div className="flex min-h-0 max-h-full flex-col gap-4 overflow-hidden">
+          <div className="shrink-0 overflow-hidden rounded-2xl shadow-xl">
+            {open ? (
+              <VideoPlayer src={item.videoUrl} />
+            ) : (
+              <div className="aspect-video w-full rounded-2xl bg-black" />
+            )}
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white p-5 shadow-xl ring-1 ring-slate-200">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-5 w-5">
+                    {item.icon ? (
+                      <img
+                        src={item.icon}
+                        alt=""
+                        className="h-6 w-6 object-contain"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="h-6 w-px bg-slate-200" />
+                </div>
+                <div className="flex items-center gap-3 text-sm text-slate-500">
+                  <span className="italic">Source</span>
+                  {item.source ? (
+                    <img
+                      src={item.source}
+                      alt=""
+                      className="w-30 max-h-15 object-contain"
+                    />
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="text-lg font-bold tracking-wide">
+                {item.title.toUpperCase()}
+              </div>
+
+              <HighlightChart item={item} className="h-48 shrink-0" />
+
+              <div className="flex items-end gap-3">
+                <div className="text-4xl font-bold tracking-tight">{item.value}</div>
+                {item.unit ? (
+                  <div className="text-xl font-semibold text-slate-700">{item.unit}</div>
+                ) : null}
+              </div>
+
+              <div className="text-sm leading-relaxed text-slate-600">{item.description}</div>
+
+              <div className="text-right text-sm underline italic">
+                <Link
+                  to={`https://technocracy.indonesiabrain.com/${item.id}`}
+                  className="underline italic"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Lihat selengkapnya
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="min-h-0">
+          <ArticleChatPanel item={item} open={open} />
+        </div>
+      </div>
+    </>
   );
 }
 

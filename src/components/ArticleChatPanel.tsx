@@ -210,15 +210,17 @@ export default function ArticleChatPanel({ item, open }: Props) {
         rounded-2xl bg-white shadow-xl ring-1 ring-slate-200
       "
     >
-      <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
-        <div className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100">
+      <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-200 py-3 pl-4 pr-3 sm:items-center sm:px-5 sm:py-4">
+        <div className="flex min-w-0 flex-1 items-start gap-2 sm:items-center">
+          <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100 sm:mt-0">
             <Sparkles className="h-4 w-4" />
           </div>
 
-          <div>
-            <div className="font-semibold text-slate-900">Tanya AI tentang artikel ini</div>
-            <div className="text-xs text-slate-500">
+          <div className="min-w-0">
+            <div className="font-semibold leading-snug text-slate-900">
+              Tanya AI tentang artikel ini
+            </div>
+            <div className="mt-0.5 text-xs leading-snug text-slate-500">
               Jawaban diprioritaskan dari artikel yang sedang dibuka
             </div>
           </div>
@@ -227,13 +229,13 @@ export default function ArticleChatPanel({ item, open }: Props) {
         <button
           type="button"
           onClick={handleReset}
-          className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 ring-1 ring-slate-200 transition hover:bg-slate-50"
+          className="mt-0.5 shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 ring-1 ring-slate-200 transition hover:bg-slate-50 sm:mt-0 sm:px-3"
         >
           Reset chat
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-5 sm:py-4">
         {articleLoading ? (
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -281,7 +283,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
         )}
       </div>
 
-      <div className="shrink-0 border-t border-slate-200 p-4">
+      <div className="shrink-0 border-t border-slate-200 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:p-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
