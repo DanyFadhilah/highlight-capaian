@@ -34,8 +34,7 @@ export default function HighlightCard({ item, onOpen }: Props) {
   const badgeText = item.badge?.text;
   const badgeVariant = item.badge?.variant;
   const numericDisplay = isPlainNumericValue(item.value);
-  const isPercent =
-    typeof item.value === "string" && item.value.includes("%");
+  const isPercent = typeof item.value === "string" && item.value.includes("%");
   const numericValue = numericDisplay ? parseNumber(item.value) : 0;
   const animatedValue = useAnimatedNumber(numericValue, 800);
   const [glitch, setGlitch] = useState(false);
@@ -56,49 +55,46 @@ export default function HighlightCard({ item, onOpen }: Props) {
     <button
       onClick={onOpen}
       className="
-        relative flex h-full min-h-0 w-full flex-col justify-start text-left
+        relative flex h-full min-h-0 w-full flex-col overflow-hidden text-left
         rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm
-        px-4 py-4
+        px-6 py-6 sm:px-8 sm:py-7
         hover:shadow-md hover:ring-slate-300
         active:scale-[0.995] transition cursor-pointer
       "
     >
-      <div className="flex shrink-0 items-center gap-3">
-        <div className="h-5 w-5">
-          {item.icon && (
-            <img
-              src={item.icon}
-              alt=""
-              className="h-5 w-5 object-contain"
-            />
-          )}
+      <div className="flex shrink-0 items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center">
+            {item.icon && (
+              <img src={item.icon} alt="" className="h-7 w-7 object-contain" />
+            )}
+          </div>
+          <div className="h-7 w-px shrink-0 bg-slate-200" />
         </div>
 
-        <div className="h-5 w-px bg-slate-200" />
-
-        {badgeText && (
+        {badgeText ? (
           <div
             className={[
-              "ml-auto rounded-lg px-3 py-1 text-xs font-medium ring-1",
+              "max-w-[58%] shrink-0 rounded-lg px-3 py-2 text-left text-sm font-medium leading-snug ring-1 sm:px-3.5 sm:text-[15px]",
               badgeClass(badgeVariant),
             ].join(" ")}
           >
             {badgeText}
           </div>
-        )}
+        ) : null}
       </div>
 
-      <div className="mt-2 flex shrink-0 flex-col gap-2 overflow-hidden">
-        <div className="shrink-0 text-lg font-bold leading-tight tracking-wide sm:text-xl">
+      <div className="mt-3 flex shrink-0 flex-col gap-2.5 sm:mt-4 sm:gap-3">
+        <div className="shrink-0 text-2xl font-bold leading-snug tracking-wide sm:text-3xl">
           {item.title.toUpperCase()}
         </div>
 
-        <div className="flex shrink-0 items-baseline gap-2">
+        <div className="flex shrink-0 flex-wrap items-baseline gap-x-2 gap-y-1">
           {numericDisplay ? (
             <div
               className={`
-              text-3xl font-bold tracking-tight tabular-nums transition-all duration-200
-              sm:text-4xl relative
+              text-4xl font-bold tracking-tight tabular-nums transition-all duration-200
+              sm:text-5xl relative
               ${glitch ? "scale-105 blur-[0.5px] opacity-80 text-blue-600" : ""}
             `}
             >
@@ -111,8 +107,8 @@ export default function HighlightCard({ item, onOpen }: Props) {
           ) : (
             <div
               className={`
-              wrap-break-word text-2xl font-bold leading-snug tracking-tight text-slate-900
-              sm:text-3xl relative
+              wrap-break-word text-3xl font-bold leading-snug tracking-tight text-slate-900
+              sm:text-4xl relative
               ${glitch ? "scale-105 blur-[0.5px] opacity-80 text-blue-600" : ""}
             `}
             >
@@ -121,18 +117,30 @@ export default function HighlightCard({ item, onOpen }: Props) {
           )}
 
           {item.unit ? (
-            <div className="text-lg font-semibold text-slate-700 sm:text-xl">
+            <div className="text-xl font-semibold text-slate-700 sm:text-2xl">
               {item.unit}
             </div>
           ) : null}
         </div>
+      </div>
 
-        {item.description ? (
-          <div className="shrink-0 text-sm leading-relaxed text-slate-600 line-clamp-4 sm:line-clamp-3">
+      {item.description ? (
+        <div className="mt-4 shrink-0 sm:mt-5">
+          <p className="mb-2 shrink-0 pl-0.5 text-sm font-semibold uppercase tracking-wide text-slate-600 sm:text-base">
+            Ringkasan indikator
+          </p>
+          <div
+            className="
+              max-h-52 overflow-y-auto overscroll-y-contain rounded-xl
+              bg-slate-50 px-5 py-4 text-left text-lg leading-relaxed text-slate-800
+              ring-1 ring-inset ring-slate-200/90
+              sm:max-h-56 sm:px-6 sm:py-5 sm:text-xl sm:leading-relaxed
+            "
+          >
             {item.description}
           </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </button>
   );
 }

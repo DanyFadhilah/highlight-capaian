@@ -29,11 +29,17 @@ type DashboardJson = {
     description: string;
     quarters: DashboardQuarterId[];
     last_updated?: string;
+    currency_note?: string;
+    sources?: string[];
   };
   quarters: Record<string, QuarterBlock>;
 };
 
 const file = dashboardFile as unknown as DashboardJson;
+
+export function getDashboardMeta(): DashboardJson["meta"] {
+  return file.meta;
+}
 
 /** Kunci indikator JSON → id highlight di aplikasi */
 export const INDICATOR_KEY_BY_HIGHLIGHT_ID: Record<string, string> = {
@@ -50,9 +56,7 @@ export const INDICATOR_KEY_BY_HIGHLIGHT_ID: Record<string, string> = {
   "cek-kesehatan-gratis": "cek_kesehatan_gratis",
 };
 
-function mapBadgeVariant(
-  t: string,
-): "up" | "down" | "info" | "warn" {
+function mapBadgeVariant(t: string): "up" | "down" | "info" | "warn" {
   if (t === "success") return "up";
   if (t === "warning") return "warn";
   if (t === "down") return "down";
@@ -64,7 +68,11 @@ export function getDefaultQuarterId(): DashboardQuarterId {
   return qs.at(-1) ?? "q1_2026";
 }
 
-export function listQuarterOptions(): { id: DashboardQuarterId; label: string; period: string }[] {
+export function listQuarterOptions(): {
+  id: DashboardQuarterId;
+  label: string;
+  period: string;
+}[] {
   return file.meta.quarters.map((id) => {
     const q = file.quarters[id];
     return {
@@ -75,7 +83,9 @@ export function listQuarterOptions(): { id: DashboardQuarterId; label: string; p
   });
 }
 
-export function buildHighlightMapForQuarter(quarterId: string): Map<string, Highlight> {
+export function buildHighlightMapForQuarter(
+  quarterId: string,
+): Map<string, Highlight> {
   const q = file.quarters[quarterId];
   if (!q) {
     return new Map(highlights.map((h) => [h.id, h] as const));
