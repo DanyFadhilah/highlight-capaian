@@ -15,27 +15,32 @@ function ChatBubble({ role, text }: ChatMessage) {
   const isUser = role === "user";
 
   return (
-    <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
+    <div
+      className={[
+        "flex w-full min-w-0 gap-2 sm:gap-3",
+        isUser ? "justify-end" : "justify-start",
+      ].join(" ")}
+    >
       {!isUser && (
-        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100">
-          <Bot className="h-4 w-4" />
+        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100 sm:mt-1 sm:h-8 sm:w-8">
+          <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </div>
       )}
 
       <div
         className={[
-          "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
+          "whitespace-pre-wrap wrap-break-word rounded-2xl px-3.5 py-2.5 text-base leading-relaxed shadow-sm sm:px-4 sm:py-3",
           isUser
-            ? "bg-slate-900 text-white"
-            : "bg-slate-50 text-slate-700 ring-1 ring-slate-200",
+            ? "ml-auto w-fit max-w-[min(100%,22rem)] bg-slate-900 text-white sm:max-w-[85%]"
+            : "min-w-0 flex-1 bg-slate-50 text-slate-700 ring-1 ring-slate-200",
         ].join(" ")}
       >
         {text}
       </div>
 
       {isUser && (
-        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700 ring-1 ring-slate-200">
-          <User className="h-4 w-4" />
+        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700 ring-1 ring-slate-200 sm:mt-1 sm:h-8 sm:w-8">
+          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </div>
       )}
     </div>
@@ -206,8 +211,9 @@ export default function ArticleChatPanel({ item, open }: Props) {
   return (
     <div
       className="
-        flex h-full min-h-0 max-h-full flex-col overflow-hidden
-        rounded-2xl bg-white shadow-xl ring-1 ring-slate-200
+        flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-slate-200
+        max-md:h-auto max-md:min-h-[min(40dvh,360px)]
+        md:h-full md:min-h-0 md:max-h-full
       "
     >
       <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-200 py-3 pl-4 pr-3 sm:items-center sm:px-5 sm:py-4">
@@ -235,7 +241,13 @@ export default function ArticleChatPanel({ item, open }: Props) {
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-5 sm:py-4">
+      <div
+        className="
+          px-3 py-4 sm:px-5 sm:py-4
+          max-md:flex-none max-md:overflow-visible
+          md:min-h-0 md:flex-1 md:overflow-y-auto
+        "
+      >
         {articleLoading ? (
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -251,7 +263,7 @@ export default function ArticleChatPanel({ item, open }: Props) {
                     AI sedang menyiapkan ringkasan artikel...
                   </div>
                 ) : (
-                  <div className="rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600 ring-1 ring-slate-200">
+                  <div className="rounded-2xl bg-slate-50 p-3.5 text-base leading-relaxed text-slate-600 ring-1 ring-slate-200 sm:p-4">
                     Hai, saya siap bantu menjelaskan isi artikel{" "}
                     <span className="font-semibold">{item.title}</span>. Silakan tanya apa saja.
                   </div>
@@ -266,11 +278,11 @@ export default function ArticleChatPanel({ item, open }: Props) {
                 ))}
 
                 {sending && (
-                  <div className="flex gap-3">
-                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100">
-                      <Bot className="h-4 w-4" />
+                  <div className="flex w-full min-w-0 gap-2 sm:gap-3">
+                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-100 sm:mt-1 sm:h-8 sm:w-8">
+                      <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-500 ring-1 ring-slate-200">
+                    <div className="min-w-0 flex-1 rounded-2xl bg-slate-50 px-3.5 py-2.5 text-base leading-relaxed text-slate-500 ring-1 ring-slate-200 sm:px-4 sm:py-3">
                       AI sedang menyusun jawaban...
                     </div>
                   </div>

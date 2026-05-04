@@ -153,15 +153,15 @@ function LayoutA({ item, open }: { item: Highlight; open: boolean }) {
 
   return (
     <>
-      {/* Mobile: kolom penuh tinggi, chat mengisi sisa viewport — area pesan scroll di dalam panel */}
-      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden p-1 sm:gap-3 sm:p-2 md:hidden">
+      {/* Mobile: satu kolom tinggi natural, scroll di Dialog.Content; chat boleh panjang */}
+      <div className="flex flex-col gap-3 p-1 pb-8 pt-10 sm:gap-3 sm:p-2 md:hidden">
         <div className="aspect-video w-full shrink-0 overflow-hidden rounded-2xl shadow-xl">
           {videoEl}
         </div>
-        <div className="min-h-0 max-h-[min(34vh,260px)] shrink-0 overflow-y-auto rounded-2xl shadow-xl">
+        <div className="shrink-0 rounded-2xl shadow-xl">
           <ArticleInfoCompact item={item} />
         </div>
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="w-full shrink-0">
           <ArticleChatPanel item={item} open={open} />
         </div>
       </div>
@@ -203,17 +203,17 @@ function LayoutB({ item, open }: { item: Highlight; open: boolean }) {
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden p-1 sm:p-2 md:hidden">
+      <div className="flex flex-col gap-3 p-1 pb-8 pt-10 sm:p-2 md:hidden">
         <div className="aspect-video w-full shrink-0 overflow-hidden rounded-2xl shadow-xl">
           {videoEl}
         </div>
-        <div className="min-h-0 max-h-[40vh] shrink-0 overflow-hidden rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-200">
-          <HighlightChart item={item} className="h-full min-h-[160px]" />
+        <div className="shrink-0 overflow-hidden rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-200">
+          <HighlightChart item={item} className="h-[min(40vh,220px)] min-h-[160px] w-full" />
         </div>
-        <div className="min-h-0 max-h-[min(28vh,220px)] shrink-0 overflow-y-auto">
+        <div className="shrink-0 rounded-2xl shadow-xl">
           <ArticleInfoCompact item={item} />
         </div>
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="w-full shrink-0">
           <ArticleChatPanel item={item} open={open} />
         </div>
       </div>
@@ -308,14 +308,12 @@ function LayoutC({ item, open }: { item: Highlight; open: boolean }) {
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden p-1 sm:p-2 md:hidden">
+      <div className="flex flex-col gap-3 p-1 pb-8 pt-10 sm:p-2 md:hidden">
         <div className="aspect-video w-full shrink-0 overflow-hidden rounded-2xl shadow-xl">
           {videoEl}
         </div>
-        <div className="min-h-0 max-h-[min(36vh,300px)] shrink-0 overflow-y-auto">
-          {articleWithChart}
-        </div>
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="shrink-0">{articleWithChart}</div>
+        <div className="w-full shrink-0">
           <ArticleChatPanel item={item} open={open} />
         </div>
       </div>
@@ -412,12 +410,12 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
         <Dialog.Content
           className="
             fixed inset-0 z-50
-            h-dvh min-h-0 w-full
+            max-h-dvh min-h-0 w-full overflow-y-auto overscroll-y-contain
             p-2 sm:p-3
             md:left-1/2 md:top-1/2 md:inset-auto
             md:-translate-x-1/2 md:-translate-y-1/2
             md:h-dvh md:max-h-dvh md:w-[min(1380px,calc(100vw-1.5rem))]
-            md:rounded-3xl
+            md:overflow-hidden md:rounded-3xl
             focus:outline-none
           "
         >
@@ -430,17 +428,15 @@ export default function HighlightModal({ item, open, onOpenChange }: Props) {
             WordPress, dan kolom chat AI untuk pertanyaan terkait artikel.
           </Dialog.Description>
 
-          <div className="relative h-full min-h-0">
+          <div className="relative w-full md:h-full md:min-h-0">
             <Dialog.Close asChild>
               <button
                 aria-label="Close"
                 className="
-                  absolute right-4 top-4 z-20
-                  grid h-9 w-9 place-items-center
-                  rounded-full bg-white text-slate-900 shadow-lg
-                  ring-1 ring-slate-200
-                  md:right-3 md:top-3 md:h-10 md:w-10
-                  hover:bg-slate-50 active:scale-[0.98] cursor-pointer
+                  fixed right-4 top-4 z-[70] grid h-9 w-9 place-items-center
+                  rounded-full bg-white text-slate-900 shadow-lg ring-1 ring-slate-200
+                  hover:cursor-pointer hover:bg-slate-50 active:scale-[0.98]
+                  md:absolute md:right-3 md:top-3 md:z-20 md:h-10 md:w-10
                 "
               >
                 <X className="h-5 w-5" />
