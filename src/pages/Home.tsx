@@ -1,4 +1,11 @@
-import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import {
+  useMemo,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+} from "react";
 import {
   DndContext,
   closestCenter,
@@ -19,13 +26,15 @@ import HighlightModal from "../components/HighlightModal";
 import SortableHighlightCard from "../components/SortableHighlightCard";
 import {
   buildHighlightMapForQuarter,
+  getDashboardMeta,
   getDefaultQuarterId,
   listQuarterOptions,
   type DashboardQuarterId,
 } from "../lib/dashboardQuarter";
 
-const DESIGN_BASE_WIDTH = 1536;
-const DESIGN_BASE_HEIGHT = 820;
+/** Lebar desain minimum; di layar lebar diperlebar sampai DESIGN_MAX_WIDTH jika skala dibatasi tinggi. */
+const DESIGN_MIN_WIDTH = 1536;
+const DESIGN_MAX_WIDTH = 2800;
 
 const DEFAULT_ORDER = [
   "pertumbuhan-ekonomi",
@@ -35,8 +44,13 @@ const DEFAULT_ORDER = [
 
 export default function Home() {
   const [selected, setSelected] = useState<Highlight | null>(null);
-  const [quarterId, setQuarterId] = useState<DashboardQuarterId>(getDefaultQuarterId);
+  const [quarterId, setQuarterId] =
+    useState<DashboardQuarterId>(getDefaultQuarterId);
   const [scale, setScale] = useState(1);
+  const [designContentHeight, setDesignContentHeight] = useState(1080);
+  const [designCanvasWidth, setDesignCanvasWidth] = useState(DESIGN_MIN_WIDTH);
+  const desktopStageRef = useRef<HTMLDivElement | null>(null);
+  const designMeasureRef = useRef<HTMLDivElement | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const bgmStarted = useRef(false);
 
@@ -51,9 +65,12 @@ export default function Home() {
     if (!audio || bgmStarted.current) return;
 
     audio.volume = 0.35;
-    audio.play().then(() => {
-      bgmStarted.current = true;
-    }).catch(() => {});
+    audio
+      .play()
+      .then(() => {
+        bgmStarted.current = true;
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -87,18 +104,6 @@ export default function Home() {
     }
   }, [selected]);
 
-  useEffect(() => {
-    function handleResize() {
-      const scaleX = window.innerWidth / DESIGN_BASE_WIDTH;
-      const scaleY = window.innerHeight / DESIGN_BASE_HEIGHT;
-      setScale(Math.min(scaleX, scaleY));
-    }
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const orderedHighlights = useMemo(() => {
     const remaining = highlights
       .filter((h) => !DEFAULT_ORDER.includes(h.id))
@@ -119,6 +124,77 @@ export default function Home() {
   const activeQuarterLabel = useMemo(() => {
     return quarterOptions.find((q) => q.id === quarterId)?.period ?? "";
   }, [quarterId, quarterOptions]);
+
+  const dashboardMeta = useMemo(() => getDashboardMeta(), []);
+
+  const updateDesktopFit = useCallback(() => {
+    const stage = desktopStageRef.current;
+    const design = designMeasureRef.current;
+    if (!stage || !design) return;
+
+    const vw = stage.clientWidth;
+    const vh = stage.clientHeight;
+    /** Stage belum ter-layout (mis. `display:none` sebelum breakpoint) — hindari NaN / loop. */
+    if (vw < 8 || vh < 8) return;
+
+    const w = designCanvasWidth;
+
+    const contentH = Math.max(1, Math.ceil(design.scrollHeight));
+    const scaleW = vw / w;
+    const scaleH = vh / contentH;
+
+    if (!Number.isFinite(scaleW) || !Number.isFinite(scaleH)) return;
+
+    // Hanya perlebar kanvas bila tinggi viewport yang membatasi skala.
+    // Jangan paksa kembali ke DESIGN_MIN_WIDTH saat dibatasi lebar — itu bikin loncat 1536 ↔ lebar
+    // besar dan memicu update tanpa akhir (layar putih).
+    if (scaleH < scaleW) {
+      const idealW = Math.min(
+        DESIGN_MAX_WIDTH,
+        Math.max(DESIGN_MIN_WIDTH, Math.floor((vw * 0.998) / scaleH)),
+      );
+      if (Math.abs(idealW - w) > 6) {
+        setDesignCanvasWidth(idealW);
+        return;
+      }
+    }
+
+    const h = Math.max(1, Math.ceil(design.scrollHeight));
+    const next = Math.min(vw / designCanvasWidth, vh / h) * 0.995;
+    const safe = Number.isFinite(next) && next > 0 ? next : 1;
+
+    setDesignContentHeight((prev) => (prev === h ? prev : h));
+    setScale((prev) => (Math.abs(prev - safe) < 1e-4 ? prev : safe));
+  }, [designCanvasWidth]);
+
+  useLayoutEffect(() => {
+    updateDesktopFit();
+  }, [updateDesktopFit, quarterId, items]);
+
+  useEffect(() => {
+    const stage = desktopStageRef.current;
+    const design = designMeasureRef.current;
+    if (!stage || !design) return;
+
+    let raf = 0;
+    const scheduleFit = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        updateDesktopFit();
+      });
+    };
+
+    const ro = new ResizeObserver(scheduleFit);
+    ro.observe(stage);
+    ro.observe(design);
+    window.addEventListener("resize", scheduleFit);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", scheduleFit);
+    };
+  }, [updateDesktopFit]);
 
   const topItems = items.slice(0, 3);
   const restItems = items.slice(3);
@@ -153,32 +229,44 @@ export default function Home() {
     <>
       <audio ref={bgmRef} src="/audio/backsound.mp3" loop preload="auto" />
 
-      <div className="hidden lg:flex h-dvh w-screen max-w-[100vw] items-center justify-center overflow-hidden bg-slate-50">
+      <div
+        ref={desktopStageRef}
+        className="hidden lg:flex lg:h-dvh lg:w-screen lg:max-w-[100vw] lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:bg-slate-50"
+      >
+        <div className="flex min-h-dvh w-full shrink-0 flex-col items-center justify-center px-1 py-2 sm:px-2">
         <div
-          className="origin-center flex shrink-0 flex-col"
+          className="shrink-0 overflow-hidden"
           style={{
-            transform: `scale(${scale})`,
-            width: DESIGN_BASE_WIDTH,
-            height: DESIGN_BASE_HEIGHT,
+            width: designCanvasWidth * scale,
+            height: designContentHeight * scale,
           }}
         >
-          <div className="flex min-h-0 flex-1 flex-col px-10 py-8">
-            <div className="flex items-center gap-3 justify-center">
-              <img src="/icon/garuda.svg" alt="Garuda" className="h-10 w-10" />
-              <p className="text-2xl font-bold">
+          <div
+            ref={designMeasureRef}
+            className="flex shrink-0 flex-col"
+            style={{
+              width: designCanvasWidth,
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+            }}
+          >
+            <div className="flex min-h-0 w-full shrink-0 flex-col px-6 pb-6 pt-8 sm:px-8 lg:px-10">
+            <div className="flex items-center justify-center gap-4">
+              <img src="/icon/garuda.svg" alt="Garuda" className="h-12 w-12 shrink-0" />
+              <p className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Dashboard AI Presiden Prabowo Subianto
               </p>
             </div>
 
-            <header className="mt-1 flex flex-wrap items-end justify-between gap-3">
+            <header className="mt-4 flex flex-wrap items-end justify-between gap-4">
               <div className="min-w-0 flex-1">
-                <p className="text-xl font-semibold">
+                <p className="text-2xl font-semibold leading-snug text-slate-900 sm:text-3xl">
                   Highlight Capaian Pemerintah Tahun 2026
                 </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
+                <div className="mt-3 flex flex-wrap items-center gap-3">
                   <label
                     htmlFor="dashboard-quarter"
-                    className="shrink-0 text-sm text-slate-600"
+                    className="shrink-0 text-base font-medium text-slate-700 sm:text-lg"
                   >
                     Periode data
                   </label>
@@ -190,8 +278,9 @@ export default function Home() {
                     }
                     className="
                       max-w-full rounded-lg border border-slate-200 bg-white
-                      px-3 py-1.5 text-sm font-medium text-slate-800 shadow-sm
+                      px-4 py-2.5 text-base font-medium text-slate-800 shadow-sm
                       outline-none ring-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100
+                      sm:text-lg
                     "
                   >
                     {quarterOptions.map((q) => (
@@ -202,12 +291,14 @@ export default function Home() {
                   </select>
                 </div>
                 {activeQuarterLabel ? (
-                  <p className="mt-1 text-xs text-slate-500">{activeQuarterLabel}</p>
+                  <p className="mt-2 text-base text-slate-600 sm:text-lg">{activeQuarterLabel}</p>
                 ) : null}
               </div>
-              <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
-                <p className="text-sm font-medium text-blue-600">{tanggalHariIni}</p>
-                <p className="text-[11px] text-slate-400">Tampilan kartu mengikuti periode</p>
+              <div className="flex shrink-0 flex-col items-end gap-1 text-right">
+                <p className="text-lg font-semibold text-blue-600 sm:text-xl">{tanggalHariIni}</p>
+                <p className="max-w-[20rem] text-sm leading-snug text-slate-500 sm:text-base">
+                  Tampilan kartu mengikuti periode
+                </p>
               </div>
             </header>
 
@@ -216,9 +307,9 @@ export default function Home() {
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <main className="mt-6 flex min-h-0 flex-1 flex-col gap-4">
+              <main className="mt-5 flex min-h-0 shrink-0 flex-col gap-3">
                 <SortableContext items={items} strategy={rectSortingStrategy}>
-                  <div className="grid min-h-0 flex-1 grid-cols-3 gap-4">
+                  <div className="grid min-h-0 shrink-0 grid-cols-3 gap-3">
                     {topItems.map((id) => {
                       const item = itemMap.get(id);
                       if (!item) return null;
@@ -236,7 +327,7 @@ export default function Home() {
                   {restRows.map((rowIds, rowIndex) => (
                     <div
                       key={`rest-row-${rowIndex}`}
-                      className="grid min-h-0 flex-1 grid-cols-4 gap-4"
+                      className="grid min-h-0 shrink-0 grid-cols-4 gap-3"
                     >
                       {rowIds.map((id) => {
                         const item = itemMap.get(id);
@@ -255,24 +346,62 @@ export default function Home() {
                 </SortableContext>
               </main>
             </DndContext>
+            </div>
           </div>
         </div>
+        </div>
+
+        <footer className="mx-auto w-full max-w-4xl shrink-0 border-t border-slate-200 bg-slate-50 px-6 py-10 pb-16 sm:px-10">
+          <p className="text-base font-medium leading-relaxed text-slate-800 sm:text-lg">
+            {dashboardMeta.description}
+          </p>
+          {dashboardMeta.currency_note ? (
+            <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+              {dashboardMeta.currency_note}
+            </p>
+          ) : null}
+          {dashboardMeta.last_updated ? (
+            <p className="mt-3 text-sm text-slate-600 sm:text-base">
+              Pembaruan data:{" "}
+              {new Date(dashboardMeta.last_updated).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+          ) : null}
+          {dashboardMeta.sources && dashboardMeta.sources.length > 0 ? (
+            <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-2.5">
+              <span className="w-full text-sm font-semibold text-slate-600 sm:w-auto sm:text-base">
+                Sumber:
+              </span>
+              {dashboardMeta.sources.map((src) => (
+                <span
+                  key={src}
+                  className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-800 ring-1 ring-slate-200/80 sm:text-sm"
+                >
+                  {src}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </footer>
       </div>
 
-      <div className="lg:hidden min-h-dvh w-full bg-slate-50">
-        <div className="mx-auto flex w-full max-w-[720px] flex-col px-4 py-5 sm:px-6 sm:py-6">
+      <div className="min-h-dvh w-full bg-slate-50 lg:hidden">
+        <div className="mx-auto flex w-full max-w-[720px] flex-col px-4 py-6 sm:px-6 sm:py-8">
           <div className="flex items-center justify-center gap-2 text-center">
             <img
               src="/icon/garuda.svg"
               alt="Garuda"
-              className="h-7 w-7 sm:h-9 sm:w-9"
+              className="h-8 w-8 shrink-0 sm:h-9 sm:w-9"
             />
-            <p className="text-base font-bold leading-tight sm:text-xl">
+            <p className="text-lg font-bold leading-tight sm:text-xl">
               Dashboard AI Presiden Prabowo Subianto
             </p>
           </div>
 
-          <header className="mt-3 flex flex-col gap-2">
+          <header className="mt-4 flex flex-col gap-2 border-b border-slate-200/80 pb-4">
             <p className="text-base font-semibold sm:text-lg">
               Highlight Capaian Pemerintah Tahun 2026
             </p>
@@ -312,9 +441,9 @@ export default function Home() {
           </header>
 
           <DndContext>
-            <main className="mt-4 pb-6">
+            <main className="mt-4 pb-8">
               <SortableContext items={items} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                   {items.map((id) => {
                     const item = itemMap.get(id);
                     if (!item) return null;
@@ -332,6 +461,36 @@ export default function Home() {
               </SortableContext>
             </main>
           </DndContext>
+
+          <footer className="mt-10 border-t border-slate-200 pt-6">
+            <p className="text-sm font-medium text-slate-700">{dashboardMeta.description}</p>
+            {dashboardMeta.currency_note ? (
+              <p className="mt-1 text-xs text-slate-600">{dashboardMeta.currency_note}</p>
+            ) : null}
+            {dashboardMeta.last_updated ? (
+              <p className="mt-1 text-xs text-slate-500">
+                Pembaruan data:{" "}
+                {new Date(dashboardMeta.last_updated).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            ) : null}
+            {dashboardMeta.sources && dashboardMeta.sources.length > 0 ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-medium text-slate-500">Referensi sumber:</span>
+                {dashboardMeta.sources.map((src) => (
+                  <span
+                    key={src}
+                    className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200/80"
+                  >
+                    {src}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </footer>
         </div>
       </div>
 
