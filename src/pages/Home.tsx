@@ -17,6 +17,12 @@ import { highlights } from "../data/highlights";
 import type { Highlight } from "../types/highlight";
 import HighlightModal from "../components/HighlightModal";
 import SortableHighlightCard from "../components/SortableHighlightCard";
+import {
+  buildHighlightMapForQuarter,
+  getDefaultQuarterId,
+  listQuarterOptions,
+  type DashboardQuarterId,
+} from "../lib/dashboardQuarter";
 
 const DESIGN_BASE_WIDTH = 1536;
 const DESIGN_BASE_HEIGHT = 820;
@@ -29,6 +35,7 @@ const DEFAULT_ORDER = [
 
 export default function Home() {
   const [selected, setSelected] = useState<Highlight | null>(null);
+  const [quarterId, setQuarterId] = useState<DashboardQuarterId>(getDefaultQuarterId);
   const [scale, setScale] = useState(1);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const bgmStarted = useRef(false);
@@ -102,9 +109,16 @@ export default function Home() {
 
   const [items, setItems] = useState<string[]>(orderedHighlights);
 
-  const itemMap = useMemo(() => {
-    return new Map(highlights.map((h) => [h.id, h]));
-  }, []);
+  const itemMap = useMemo(
+    () => buildHighlightMapForQuarter(quarterId),
+    [quarterId],
+  );
+
+  const quarterOptions = useMemo(() => listQuarterOptions(), []);
+
+  const activeQuarterLabel = useMemo(() => {
+    return quarterOptions.find((q) => q.id === quarterId)?.period ?? "";
+  }, [quarterId, quarterOptions]);
 
   const topItems = items.slice(0, 3);
   const restItems = items.slice(3);
@@ -156,13 +170,45 @@ export default function Home() {
               </p>
             </div>
 
-            <header className="flex items-start justify-between mt-1">
-              <p className="text-xl font-semibold">
-                Highlight Capaian Pemerintah Tahun 2026
-              </p>
-              <p className="text-sm font-medium text-blue-600">
-                {tanggalHariIni}
-              </p>
+            <header className="mt-1 flex flex-wrap items-end justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-xl font-semibold">
+                  Highlight Capaian Pemerintah Tahun 2026
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <label
+                    htmlFor="dashboard-quarter"
+                    className="shrink-0 text-sm text-slate-600"
+                  >
+                    Periode data
+                  </label>
+                  <select
+                    id="dashboard-quarter"
+                    value={quarterId}
+                    onChange={(e) =>
+                      setQuarterId(e.target.value as DashboardQuarterId)
+                    }
+                    className="
+                      max-w-full rounded-lg border border-slate-200 bg-white
+                      px-3 py-1.5 text-sm font-medium text-slate-800 shadow-sm
+                      outline-none ring-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100
+                    "
+                  >
+                    {quarterOptions.map((q) => (
+                      <option key={q.id} value={q.id}>
+                        {q.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {activeQuarterLabel ? (
+                  <p className="mt-1 text-xs text-slate-500">{activeQuarterLabel}</p>
+                ) : null}
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+                <p className="text-sm font-medium text-blue-600">{tanggalHariIni}</p>
+                <p className="text-[11px] text-slate-400">Tampilan kartu mengikuti periode</p>
+              </div>
             </header>
 
             <DndContext
@@ -226,10 +272,40 @@ export default function Home() {
             </p>
           </div>
 
-          <header className="mt-3 flex flex-col gap-1">
+          <header className="mt-3 flex flex-col gap-2">
             <p className="text-base font-semibold sm:text-lg">
               Highlight Capaian Pemerintah Tahun 2026
             </p>
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
+              <label
+                htmlFor="dashboard-quarter-mobile"
+                className="text-xs text-slate-600 sm:text-sm"
+              >
+                Periode data
+              </label>
+              <select
+                id="dashboard-quarter-mobile"
+                value={quarterId}
+                onChange={(e) =>
+                  setQuarterId(e.target.value as DashboardQuarterId)
+                }
+                className="
+                  w-full max-w-md rounded-lg border border-slate-200 bg-white
+                  px-3 py-2 text-sm font-medium text-slate-800 shadow-sm
+                  outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100
+                  sm:w-auto
+                "
+              >
+                {quarterOptions.map((q) => (
+                  <option key={q.id} value={q.id}>
+                    {q.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {activeQuarterLabel ? (
+              <p className="text-xs text-slate-500">{activeQuarterLabel}</p>
+            ) : null}
             <p className="text-xs font-medium text-blue-600 sm:text-sm">
               {tanggalHariIni}
             </p>
@@ -261,7 +337,7 @@ export default function Home() {
 
       {selected ? (
         <HighlightModal
-          item={selected}
+          item={itemMap.get(selected.id) ?? selected}
           open={!!selected}
           onOpenChange={(v) => {
             if (!v) setSelected(null);

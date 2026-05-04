@@ -22,12 +22,21 @@ function parseNumber(val: string | number): number {
   return parseFloat(normalized) || 0;
 }
 
+/** Nilai yang boleh dianimasikan sebagai angka (bukan teks status seperti "Belum Berjalan"). */
+function isPlainNumericValue(value: number | string): boolean {
+  if (typeof value === "number" && Number.isFinite(value)) return true;
+  if (typeof value !== "string") return false;
+  const s = value.replace(/\s/g, "").replace("−", "-");
+  return /^[-+]?[\d.,]+%?$/.test(s);
+}
+
 export default function HighlightCard({ item, onOpen }: Props) {
   const badgeText = item.badge?.text;
   const badgeVariant = item.badge?.variant;
+  const numericDisplay = isPlainNumericValue(item.value);
   const isPercent =
     typeof item.value === "string" && item.value.includes("%");
-  const numericValue = parseNumber(item.value);
+  const numericValue = numericDisplay ? parseNumber(item.value) : 0;
   const animatedValue = useAnimatedNumber(numericValue, 800);
   const [glitch, setGlitch] = useState(false);
 
@@ -85,25 +94,37 @@ export default function HighlightCard({ item, onOpen }: Props) {
         </div>
 
         <div className="flex shrink-0 items-baseline gap-2">
-          <div
-            className={`
+          {numericDisplay ? (
+            <div
+              className={`
               text-3xl font-bold tracking-tight tabular-nums transition-all duration-200
               sm:text-4xl relative
               ${glitch ? "scale-105 blur-[0.5px] opacity-80 text-blue-600" : ""}
             `}
-          >
-            {animatedValue.toLocaleString("id-ID", {
-              minimumFractionDigits: isPercent ? 2 : 0,
-              maximumFractionDigits: isPercent ? 2 : 2,
-            })}
-            {isPercent ? "%" : ""}
-          </div>
+            >
+              {animatedValue.toLocaleString("id-ID", {
+                minimumFractionDigits: isPercent ? 2 : 0,
+                maximumFractionDigits: 2,
+              })}
+              {isPercent ? "%" : ""}
+            </div>
+          ) : (
+            <div
+              className={`
+              wrap-break-word text-2xl font-bold leading-snug tracking-tight text-slate-900
+              sm:text-3xl relative
+              ${glitch ? "scale-105 blur-[0.5px] opacity-80 text-blue-600" : ""}
+            `}
+            >
+              {String(item.value)}
+            </div>
+          )}
 
-          {item.unit && (
+          {item.unit ? (
             <div className="text-lg font-semibold text-slate-700 sm:text-xl">
               {item.unit}
             </div>
-          )}
+          ) : null}
         </div>
 
         {item.description ? (
